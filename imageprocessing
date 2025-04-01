@@ -1,0 +1,37 @@
+!pip install pillow opencv-python numpy
+from PIL import Image
+import cv2
+import numpy as np
+from google.colab import files
+uploaded = files.upload()
+image_path = list(uploaded.keys())[0]
+image = Image.open(image_path)
+print("Size of the image:", image.size)  # (width, height)
+image_array = np.array(image)
+print("Shape of the image:", image_array.shape)  # (height, width, channels)
+grayscale_image = cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY)
+_, binary_image = cv2.threshold(grayscale_image, 127, 255, cv2.THRESH_BINARY)
+scaled_image = cv2.resize(image_array, None, fx=0.5, fy=0.5)
+denoised_image = cv2.GaussianBlur(scaled_image, (5, 5), 0)
+cv2.imwrite('grayscale_image.jpg', grayscale_image)
+cv2.imwrite('binary_image.jpg', binary_image)
+cv2.imwrite('scaled_image.jpg', scaled_image)
+cv2.imwrite('denoised_image.jpg', denoised_image)
+files.download('grayscale_image.jpg')
+files.download('binary_image.jpg')
+files.download('scaled_image.jpg')
+files.download('denoised_image.jpg')
+from matplotlib import pyplot as plt
+plt.subplot(2, 2, 1)
+plt.imshow(grayscale_image, cmap='gray')
+plt.title('Grayscale')
+plt.subplot(2, 2, 2)
+plt.imshow(binary_image, cmap='gray')
+plt.title('Binary')
+plt.subplot(2, 2, 3)
+plt.imshow(scaled_image)
+plt.title('Scaled')
+plt.subplot(2, 2, 4)
+plt.imshow(denoised_image)
+plt.title('Denoised')
+plt.show()
