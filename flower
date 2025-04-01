@@ -1,0 +1,70 @@
+# Step 1: Install required libraries (if not already installed)
+!pip install pillow opencv-python numpy
+
+# Step 2: Import libraries
+from PIL import Image
+import cv2
+import numpy as np
+from google.colab import files
+
+# Step 3: Upload image from your system
+uploaded = files.upload()
+
+# Assuming the uploaded image is the first one
+image_path = list(uploaded.keys())[0]
+
+# Step 4: Open the image using PIL
+image = Image.open(image_path)
+
+# I. Print the size and shape of the image
+print("Size of the image:", image.size)  # (width, height)
+image_array = np.array(image)
+print("Shape of the image:", image_array.shape)  # (height, width, channels)
+
+# II. Convert the image into both binary and grayscale formats
+# Convert to grayscale using OpenCV
+grayscale_image = cv2.cvtColor(image_array, cv2.COLOR_BGR2GRAY)
+
+# Convert to binary using thresholding
+_, binary_image = cv2.threshold(grayscale_image, 127, 255, cv2.THRESH_BINARY)
+
+# III. Scale the image by reducing its size
+# You can reduce by a factor, say 0.5
+scaled_image = cv2.resize(image_array, None, fx=0.5, fy=0.5)
+
+# IV. Remove noise from the image using Gaussian Blur
+denoised_image = cv2.GaussianBlur(scaled_image, (5, 5), 0)
+
+# Save processed images
+cv2.imwrite('grayscale_image.jpg', grayscale_image)
+cv2.imwrite('binary_image.jpg', binary_image)
+cv2.imwrite('scaled_image.jpg', scaled_image)
+cv2.imwrite('denoised_image.jpg', denoised_image)
+
+# Step 5: Download the processed images
+files.download('grayscale_image.jpg')
+files.download('binary_image.jpg')
+files.download('scaled_image.jpg')
+files.download('denoised_image.jpg')
+
+# Step 6: Display the images
+from matplotlib import pyplot as plt
+
+# Display images
+plt.subplot(2, 2, 1)
+plt.imshow(grayscale_image, cmap='gray')
+plt.title('Grayscale')
+
+plt.subplot(2, 2, 2)
+plt.imshow(binary_image, cmap='gray')
+plt.title('Binary')
+
+plt.subplot(2, 2, 3)
+plt.imshow(scaled_image)
+plt.title('Scaled')
+
+plt.subplot(2, 2, 4)
+plt.imshow(denoised_image)
+plt.title('Denoised')
+
+plt.show()
